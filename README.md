@@ -61,7 +61,7 @@ graph LR
 ## CI
 
 - **Linux job:** shared tests (JVM + Android), Android APK, desktop distributable, screenshots committed to `docs/screenshots`.
-- **macOS job:** the same shared tests on the **iOS simulator**, and links `Shared.framework`.
+- **iOS workflow** (`ios.yml`, manual or weekly): the same shared tests on the **iOS simulator**, and links `Shared.framework`.
 
 ## Next steps
 
