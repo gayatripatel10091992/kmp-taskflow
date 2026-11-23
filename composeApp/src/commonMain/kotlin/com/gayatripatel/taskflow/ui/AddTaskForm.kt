@@ -2,6 +2,8 @@ package com.gayatripatel.taskflow.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -42,6 +44,7 @@ fun AddTaskDialog(today: LocalDate, onDismiss: () -> Unit, onAdd: (TaskAction.Ad
 }
 
 /** The form itself is a plain composable so it can be screenshot-tested without a window. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AddTaskForm(
     today: LocalDate,
@@ -73,13 +76,14 @@ fun AddTaskForm(
                 modifier = Modifier.fillMaxWidth(),
             )
             Text("Priority", style = MaterialTheme.typography.labelLarge)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Priority.entries.forEach { option ->
                     FilterChip(selected = priority == option, onClick = { priority = option }, label = { Text(option.label) })
                 }
             }
             Text("Due", style = MaterialTheme.typography.labelLarge)
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            // FlowRow wraps chips onto a second line on narrow screens instead of squeezing them.
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DueOption.entries.forEach { option ->
                     FilterChip(selected = due == option, onClick = { due = option }, label = { Text(option.label) })
                 }
