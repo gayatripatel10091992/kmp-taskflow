@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-desktop:
+    name: Shared tests, Android + Desktop builds, screenshots
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Shared module tests (JVM + Android unit)
+        run: ./gradlew :shared:desktopTest :shared:testDebugUnitTest --stacktrace
+
+      - name: Build Android APK + desktop distributable
+        run: ./gradlew :composeApp:assembleDebug :composeApp:createDistributable --stacktrace
+
+      - name: Render screenshots (Compose Multiplatform on JVM/Skia)
+        run: ./gradlew :composeApp:desktopTest --stacktrace
+
+      - name: Collect screenshots
+        run: |
+          mkdir -p docs/screenshots
+          cp composeApp/build/screenshots/*.png docs/screenshots/
+          ls -la docs/screenshots
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: taskflow-android-apk
+          path: composeApp/build/outputs/apk/debug/*.apk
+
+      - name: Commit updated screenshots
+        if: github.event_name != 'pull_request'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/screenshots
+          if git diff --cached --quiet; then
+            echo "Screenshots unchanged"
+          else
+            git commit -m "docs: update screenshots [skip ci]"
+            git pull --rebase
+            git push
+          fi
+
+  ios:
+    name: Shared tests on iOS simulator
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Run shared tests on iOS simulator + link framework
+        run: ./gradlew :shared:iosSimulatorArm64Test :shared:linkDebugFrameworkIosSimulatorArm64 --stacktrace
