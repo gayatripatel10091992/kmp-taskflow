@@ -68,3 +68,8 @@ compose.desktop {
         }
     }
 }
+
+// Screenshot PNGs are a declared output, so a cached (up-to-date) test run still restores them.
+tasks.withType<Test>().matching { it.name == "desktopTest" }.configureEach {
+    outputs.dir(layout.buildDirectory.dir("screenshots"))
+}
