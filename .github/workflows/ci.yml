@@ -24,7 +24,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Shared module tests (JVM + Android unit)
         run: ./gradlew :shared:desktopTest :shared:testDebugUnitTest --stacktrace
@@ -70,6 +70,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - name: Run shared tests on iOS simulator + link framework
         run: ./gradlew :shared:iosSimulatorArm64Test :shared:linkDebugFrameworkIosSimulatorArm64 --stacktrace
